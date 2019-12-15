@@ -43,7 +43,25 @@ RUN apt-get update && \
     g++-5 \
   && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y \
+    python-matplotlib \
+    python-pip
+
+RUN pip install --upgrade pip
+
+RUN pip install jupyter && \
+    pip install jupyterlab && \
+    jupyter serverextension enable --py jupyterlab --sys-prefix && \
+    ldconfig
+
+# exxpose for jupyter
+EXPOSE 8888
+
 RUN make USE_BLAS=openblas USE_CUDA=1 USE_CUDA_PATH=/usr/local/cuda USE_CUDNN=1
 # RUN make -j [NUM_OF_PROCESS] USE_CUDA_PATH=[PATH_TO_THE_CUDA_FOLDER]
+
+RUN pip install -r requirements.txt && \
+    pip install numpy matplotlib --upgrade && \
+    bash scripts/compile.sh
 
 WORKDIR /root/SNIPER
