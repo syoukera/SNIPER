@@ -62,6 +62,7 @@ RUN make USE_BLAS=openblas USE_CUDA=1 USE_CUDA_PATH=/usr/local/cuda USE_CUDNN=1
 
 RUN pip install -r requirements.txt && \
     pip install numpy matplotlib --upgrade && \
-    bash scripts/compile.sh
+    bash scripts/compile.sh && \
+    bash scripts/download_sniper_detector.sh
 
 WORKDIR /root/SNIPER
