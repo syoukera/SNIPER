@@ -43,6 +43,12 @@ RUN apt-get update && \
     g++-5 \
   && rm -rf /var/lib/apt/lists/*
 
+# RUN make USE_BLAS=openblas USE_CUDA=1 USE_CUDA_PATH=/usr/local/cuda USE_CUDNN=1
+# RUN make -j [NUM_OF_PROCESS] USE_CUDA_PATH=[PATH_TO_THE_CUDA_FOLDER]
+
+# prepare python environment
+WORKDIR /root/SNIPER
+
 RUN apt-get update && apt-get install -y \
     python-matplotlib \
     python-pip
@@ -57,12 +63,7 @@ RUN pip install jupyter && \
 # exxpose for jupyter
 EXPOSE 8888
 
-RUN make USE_BLAS=openblas USE_CUDA=1 USE_CUDA_PATH=/usr/local/cuda USE_CUDNN=1
-# RUN make -j [NUM_OF_PROCESS] USE_CUDA_PATH=[PATH_TO_THE_CUDA_FOLDER]
-
 RUN pip install -r requirements.txt && \
     pip install numpy matplotlib --upgrade && \
     bash scripts/compile.sh && \
     bash scripts/download_sniper_detector.sh
-
-WORKDIR /root/SNIPER
