@@ -39,8 +39,8 @@ network:
 dataset:
   NUM_CLASSES: 3130
   dataset: imagenet
-  dataset_path: "./data/imagenet"
-  image_set: fall11_whole
+  dataset_path: "./data/oxford"
+  image_set: breeds
   root_path: "./data"
   test_image_set: ILSVRC2013_DET_val
   proposal: rpn
