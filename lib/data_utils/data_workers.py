@@ -142,17 +142,27 @@ class anchor_worker(object):
         labels.fill(-1)
         total_anchors = int(self.K * self.num_anchors)
 
-        gt_boxes[:, 0] -= cur_crop[0]
-        gt_boxes[:, 2] -= cur_crop[0]
-        gt_boxes[:, 1] -= cur_crop[1]
-        gt_boxes[:, 3] -= cur_crop[1]
+        # gt_boxes[:, 0] -= cur_crop[0]
+        # gt_boxes[:, 2] -= cur_crop[0]
+        # gt_boxes[:, 1] -= cur_crop[1]
+        # gt_boxes[:, 3] -= cur_crop[1]
+
+        np.subtract(gt_boxes[:, 0], cur_crop[0], out=gt_boxes[:, 0], casting='unsafe')
+        np.subtract(gt_boxes[:, 2], cur_crop[0], out=gt_boxes[:, 2], casting='unsafe')
+        np.subtract(gt_boxes[:, 1], cur_crop[1], out=gt_boxes[:, 1], casting='unsafe')
+        np.subtract(gt_boxes[:, 3], cur_crop[1], out=gt_boxes[:, 3], casting='unsafe')
 
         vgt_boxes = boxes[np.intersect1d(gtids, nids)]
 
-        vgt_boxes[:, 0] -= cur_crop[0]
-        vgt_boxes[:, 2] -= cur_crop[0]
-        vgt_boxes[:, 1] -= cur_crop[1]
-        vgt_boxes[:, 3] -= cur_crop[1]
+        # vgt_boxes[:, 0] -= cur_crop[0]
+        # vgt_boxes[:, 2] -= cur_crop[0]
+        # vgt_boxes[:, 1] -= cur_crop[1]
+        # vgt_boxes[:, 3] -= cur_crop[1]
+
+        np.subtract(vgt_boxes[:, 0], cur_crop[0], out=vgt_boxes[:, 0], casting='unsafe')
+        np.subtract(vgt_boxes[:, 2], cur_crop[0], out=vgt_boxes[:, 2], casting='unsafe')
+        np.subtract(vgt_boxes[:, 1], cur_crop[1], out=vgt_boxes[:, 1], casting='unsafe')
+        np.subtract(vgt_boxes[:, 3], cur_crop[1], out=vgt_boxes[:, 3], casting='unsafe')
 
         gt_boxes = clip_boxes(np.round(gt_boxes * im_scale), im_info[:2])
         vgt_boxes = clip_boxes(np.round(vgt_boxes * im_scale), im_info[:2])

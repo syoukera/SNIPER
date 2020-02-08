@@ -19,5 +19,5 @@ docker run -it --rm \
 -v $repository_dir:/working/rfcn3k \
 -v $data_dir:/working/data \
 -w /working/rfcn3k \
-syoukera/sniper:multi-gpu \
+syoukera/rfcn3k:multi-gpu \
 bash
