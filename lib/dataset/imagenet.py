@@ -48,11 +48,12 @@ class imagenet(IMDB):
 
         for one in self._sons:
             self._wnid_image = self._wnid_image + (str(one),)
-            self._classes_image = self._classes_image + (wnid_2_description[str(one)],)
+            # self._classes_image = self._classes_image + (wnid_2_description[str(one)],)
+            self.classes_image = self._classes_image + (str(one), )
 
         self._wnid_to_ind_image = dict(zip(self._wnid_image, xrange(num_of_subclasses)))
         self._class_to_ind_image = dict(zip(self._classes_image, xrange(num_of_subclasses)))
-        self._image_ext = ['.JPEG']
+        self._image_ext = ['.jpg']
         self._image_index = self._load_image_set_index()
 
         self.image_set_index = self._image_index
@@ -71,17 +72,19 @@ class imagenet(IMDB):
         """
         :return: dict of {wnid: description}
         """
-        path = self._devkit_path + "/data/wnid_name_dict.txt"
-        assert os.path.exists(path)
-        with open(path, 'rb') as f:
-            wnid_name_dict = pickle.load(f)
+        # path = self._devkit_path + "/data/wnid_name_dict.txt"
+        # assert os.path.exists(path)
+        # with open(path, 'rb') as f:
+        #     wnid_name_dict = pickle.load(f)
+        
+        wnid_name_dict = {'cat': 'a small carnivorous mammal', 'dog': 'a member of the genus Canis'}
         return wnid_name_dict
 
     def get_cluster_info(self):
         """
         return: dict of {wnid of subclass (fine-grained class): index of super class}
         """
-        path = self._devkit_path + "/data/3kcls_cluster_result1.txt"
+        path = os.path.join(self._data_path, 'list_breeds.pickle')
         assert os.path.exists(path)
         with open(path, 'rb') as f:
             result = defaultdict(dict)
@@ -93,6 +96,10 @@ class imagenet(IMDB):
             for j in range(length):
                 sons.append(result[i][j])
                 parents.append(i)
+        
+        # sons = ['cat', 'dog']
+        # parents = [0, 0]
+
         return sons, parents
 
     def image_path_at(self, i):
@@ -134,7 +141,7 @@ class imagenet(IMDB):
                 return image_index
 
         else:
-            image_set_file = os.path.join(self._devkit_path, 'data', 'det_lists', 'val.txt')
+            image_set_file = "./data/oxford/train.txt"
             with open(image_set_file) as f:
                 image_index = [x.strip().split(' ')[0] for x in f.readlines()]
         return image_index
@@ -234,16 +241,17 @@ class imagenet(IMDB):
             if y2 <= y1 or x2 <= x1:
                 continue
 
-            cls_tag = str(get_data_from_tag(obj, "name")).lower().strip()
+            # cls_tag = str(get_data_from_tag(obj, "name")).lower().strip()
+            cls_tag = self.index2breed(index)
 
             # discard images which includes unregistered object categories
             if not (cls_tag in self._wnid_to_ind_image):
                 continue
 
-            # correct class format is "nxxxxxxxx"; discard if not correct
-            if cls_tag[0] != 'n' or (not cls_tag[1:].isdigit()):
-                self.cls_tag_is_noun += 1
-                continue
+            # # correct class format is "nxxxxxxxx"; discard if not correct
+            # if cls_tag[0] != 'n' or (not cls_tag[1:].isdigit()):
+            #     self.cls_tag_is_noun += 1
+            #     continue
 
             cls_id = int(self._cluster_match[cls_tag]) + 1
             subcls_id = int(self._wnid_to_ind_image[cls_tag])
@@ -362,6 +370,16 @@ class imagenet(IMDB):
             self.config['use_salt'] = True
             self.config['cleanup'] = True
 
+    def index2breed(self, index):
+        path = os.path.join(self._data_path, 'list_breeds.pickle')
+        with open(path, 'r') as f:
+            breeds = pickle.load(f)[0]
+
+        for b in breeds:
+            if b in index:
+                breed = b
+
+        return breed
 if __name__ == '__main__':
     d = imagenet_clsloc('val', '')
     res = d.roidb

@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use('Agg')
 import os
 os.environ['PYTHONUNBUFFERED'] = '1'
-os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '2'
+os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 #os.environ['MXNET_ENABLE_GPU_P2P'] = '1'
 from iterators.MNIteratorE2E import MNIteratorE2E
 import sys

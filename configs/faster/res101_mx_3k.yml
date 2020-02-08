@@ -14,7 +14,7 @@ default:
   frequent: 100
   kvstore: device
 network:
-  pretrained: "./data/pretrained_model/soft"
+  pretrained: "./data/pretrained_model/resnet_mx_101_imgnet"
   pretrained_epoch: 0
   PIXEL_MEANS:
   - 103.939
@@ -42,7 +42,7 @@ dataset:
   dataset_path: "./data/oxford"
   image_set: breeds
   root_path: "./data"
-  test_image_set: ILSVRC2013_DET_val
+  test_image_set: breeds
   proposal: rpn
 TRAIN:
   # Whether to use C++ or python code for chip generation
@@ -91,7 +91,7 @@ TRAIN:
   # whether use OHEM
   ENABLE_OHEM: true
   # size of images for each device, 2 for rcnn, 1 for rpn and e2e
-  BATCH_IMAGES: 16
+  BATCH_IMAGES: 8
   # e2e changes behavior of anchor loader and metric
   END2END: true
   # R-CNN
@@ -156,7 +156,7 @@ TEST:
 
   # Number of images per gpu for each scale
   BATCH_IMAGES:
-  - 6
+  - 2
 
   # Number of concurrent jobs used for inference
   # if greater than 1, the roidb is distributed over
