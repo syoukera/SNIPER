@@ -12,4 +12,5 @@ debug/*
 *.idx
 *.lst
 *.o
+*.ipynb
 lib/chips/chips.cpp
