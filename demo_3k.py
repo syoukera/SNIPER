@@ -95,8 +95,9 @@ def main():
     mod.init_params(arg_params=arg_params, aux_params=aux_params)   
 
     # load the [index] - [class name] matching file
-    with open("./data/imagenet/ILSVRC2014_devkit/data/3kcls_1C_words.txt",'rb') as f:
-        index2words = pickle.load(f)
+    with open("./data/oxford/list_breeds.pickle",'rb') as f:
+        index2words = pickle.load(f)[0]
+    # index2words.insert(0, u'background')
 
     # test
     for idx, im_name in enumerate(image_names):
