@@ -27,7 +27,7 @@ class imagenet(IMDB):
         self._devkit_path = "./data/imagenet/ILSVRC2014_devkit"
         self._result_path = "./output/imagenet"
         self.num_classes = 1 + 1
-        self.num_sub_classes = 3130 + 1
+        self.num_sub_classes = 37 + 1
 
         self._classes_image = ()
         self._wnid_image = ()
