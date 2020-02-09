@@ -15,3 +15,4 @@ debug/*
 *.ipynb
 lib/chips/chips.cpp
 vis_result
+log.*
