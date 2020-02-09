@@ -85,7 +85,7 @@ def main():
     max_data_shape = [[('data', (1, 3, max([v[0] for v in config.TEST.SCALES]), max([v[1] for v in config.TEST.SCALES])))]]
     provide_data = [[(k, v.shape) for k, v in zip(data_names, data[i])] for i in xrange(len(data))]
     provide_label = [None for i in xrange(len(data))]
-    output_path = './output/chips_resnet101_3k/res101_mx_3k/fall11_whole/'
+    output_path = './output/chips_resnet101_3k/res101_mx_3k/breeds/'
     model_prefix = os.path.join(output_path, 'CRCNN')
     arg_params, aux_params = load_param(model_prefix, config.TEST.TEST_EPOCH,
                                         convert=True, process=True)
@@ -95,7 +95,7 @@ def main():
     mod.init_params(arg_params=arg_params, aux_params=aux_params)   
 
     # load the [index] - [class name] matching file
-    with open("./data/ILSVRC2014_devkit/data/3kcls_1C_words.txt",'rb') as f:
+    with open("./data/imagenet/ILSVRC2014_devkit/data/3kcls_1C_words.txt",'rb') as f:
         index2words = pickle.load(f)
 
     # test
