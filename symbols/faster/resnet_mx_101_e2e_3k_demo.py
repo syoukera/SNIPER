@@ -158,7 +158,8 @@ class resnet_mx_101_e2e_3k_demo(Symbol):
 
     def get_symbol_rcnn(self, cfg, is_train=True):
         num_anchors = cfg.network.NUM_ANCHORS
-        num_classes = 3131
+        # num_classes = 3131
+        num_classes = cfg.dataset.NUM_CLASSES + 1
         # input init
         if is_train:
             data = mx.sym.Variable(name="data")
