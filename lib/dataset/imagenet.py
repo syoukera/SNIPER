@@ -89,8 +89,8 @@ class imagenet(IMDB):
         with open(path, 'rb') as f:
             result = defaultdict(dict)
             result = pickle.load(f)
-        sons = []
-        parents = []
+        sons = ['Background']
+        parents = [0]
         for i in result:
             length = len(result[i])
             for j in range(length):

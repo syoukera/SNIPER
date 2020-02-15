@@ -86,7 +86,7 @@ def main():
     provide_data = [[(k, v.shape) for k, v in zip(data_names, data[i])] for i in xrange(len(data))]
     provide_label = [None for i in xrange(len(data))]
     output_path = './output/chips_resnet101_3k/res101_mx_3k/breeds/'
-    model_prefix = os.path.join(output_path, 'CRCNN')
+    model_prefix = os.path.join(output_path, 'train100_20200215', 'CRCNN')
     arg_params, aux_params = load_param(model_prefix, config.TEST.TEST_EPOCH,
                                         convert=True, process=True)
     # set model
@@ -98,6 +98,7 @@ def main():
     with open("./data/oxford/list_breeds.pickle",'rb') as f:
         index2words = pickle.load(f)[0]
     # index2words.insert(0, u'background')
+     # index2words.pop(0)
 
     # test
     for idx, im_name in enumerate(image_names):

@@ -16,3 +16,4 @@ debug/*
 lib/chips/chips.cpp
 vis_result
 log.*
+demo/image_3k/*
