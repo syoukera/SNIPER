@@ -8,6 +8,7 @@ import xml.dom.minidom as minidom
 import numpy as np
 import cPickle
 import pickle
+import json
 from collections import defaultdict
 import subprocess
 from imdb import IMDB
@@ -17,17 +18,18 @@ import time
 DEBUG = False
 
 class imagenet(IMDB):
-    def __init__(self, image_set, root_path='./', data_path='data/imagenet/', result_path=None, load_mask=False):
+    def __init__(self, image_set, root_path='./', data_path='data/imagenet/', train_val_test_path='train60_val20', result_path=None, load_mask=False):
 
         self.name = 'imagenet'
         self._image_set = image_set
         self.image_set = image_set        
         self._data_path = data_path
+        self._train_val_test_path = train_val_test_path
         self.root_path = root_path
         self._devkit_path = "./data/imagenet/ILSVRC2014_devkit"
         self._result_path = "./output/imagenet"
         self.num_classes = 1 + 1
-        self.num_sub_classes = 37 + 1
+        self.num_sub_classes = 4 + 1
 
         self._classes_image = ()
         self._wnid_image = ()
@@ -84,21 +86,17 @@ class imagenet(IMDB):
         """
         return: dict of {wnid of subclass (fine-grained class): index of super class}
         """
-        path = os.path.join(self._data_path, 'list_breeds.pickle')
+        path = os.path.join(self._data_path, 'list_classes.pickle')
         assert os.path.exists(path)
         with open(path, 'rb') as f:
-            result = defaultdict(dict)
-            result = pickle.load(f)
+            classes = pickle.load(f)
         sons = ['Background']
         parents = [0]
-        for i in result:
-            length = len(result[i])
-            for j in range(length):
-                sons.append(result[i][j])
-                parents.append(i)
-        
-        # sons = ['cat', 'dog']
-        # parents = [0, 0]
+
+        p = 0 # set all parents as 0
+        for c in classes:
+            sons.append(c)
+            parents.append(p)
 
         return sons, parents
 
@@ -112,7 +110,8 @@ class imagenet(IMDB):
         """
         Construct an image path from the image's "index" identifier.
         """
-        image_path = os.path.join(self._data_path, self._image_set, index + self._image_ext[0])
+        name_class = self._sons[index[0] + 1]
+        image_path = os.path.join(self._data_path, self._image_set, name_class, index[1] + '.jpg')
         assert os.path.exists(image_path), 'path does not exist: {}'.format(image_path)
         return image_path
 
@@ -141,9 +140,9 @@ class imagenet(IMDB):
                 return image_index
 
         else:
-            image_set_file = "./data/oxford/train.txt"
-            with open(image_set_file) as f:
-                image_index = [x.strip().split(' ')[0] for x in f.readlines()]
+            image_set_file = os.path.join(self._data_path, self._train_val_test_path, "train.pkl")
+            with open(image_set_file, 'rb') as f:
+                image_index = pickle.load(f)
         return image_index
 
     def gt_roidb(self):
@@ -203,20 +202,16 @@ class imagenet(IMDB):
         """
         Load image and bounding boxes info from txt files of imagenet.
         """
-        filename = os.path.join(self._data_path, self._image_set + '_bbox', index + '.xml')
+        name_class = self._sons[index[0] + 1]
+        filename = os.path.join(self._data_path, self._image_set, name_class, index[1] + '.txt')
 
-        def get_data_from_tag(node, tag):
-            return node.getElementsByTagName(tag)[0].childNodes[0].data
+        with open(filename, 'r') as f:
+            data = f.readline().split()
+        
+        width = 1920
+        height = 1080
 
-        with open(filename) as f:
-            data = minidom.parseString(f.read())
-
-        objs = data.getElementsByTagName('object')
-        imsize = data.getElementsByTagName('size')
-        width = float(get_data_from_tag(imsize[0], 'width'))
-        height = float(get_data_from_tag(imsize[0], 'height'))
-
-        num_objs = len(objs)
+        num_objs = 1
 
         boxes = np.zeros((num_objs, 4), dtype=np.int32)
         gt_classes = np.zeros((num_objs), dtype=np.int32)
@@ -225,13 +220,11 @@ class imagenet(IMDB):
 
         # Load object bounding boxes into a data frame.
         ids = []
-
-        for ix, obj in enumerate(objs):
-            x1 = int(get_data_from_tag(obj, 'xmin'))
-            y1 = int(get_data_from_tag(obj, 'ymin'))
-            x2 = int(get_data_from_tag(obj, 'xmax'))
-            y2 = int(get_data_from_tag(obj, 'ymax'))
-
+        for ix in range(num_objs):
+            x1 = float(data[1])
+            y1 = float(data[2])
+            x2 = float(data[3])
+            y2 = float(data[4])
             
             # ignore invalid boxes
             if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
@@ -242,7 +235,7 @@ class imagenet(IMDB):
                 continue
 
             # cls_tag = str(get_data_from_tag(obj, "name")).lower().strip()
-            cls_tag = self.index2breed(index)
+            cls_tag = self._sons[int(data[0]) - 1]
 
             # discard images which includes unregistered object categories
             if not (cls_tag in self._wnid_to_ind_image):
@@ -370,16 +363,6 @@ class imagenet(IMDB):
             self.config['use_salt'] = True
             self.config['cleanup'] = True
 
-    def index2breed(self, index):
-        path = os.path.join(self._data_path, 'list_breeds.pickle')
-        with open(path, 'r') as f:
-            breeds = pickle.load(f)[0]
-
-        for b in breeds:
-            if b in index:
-                breed = b
-
-        return breed
 if __name__ == '__main__':
     d = imagenet_clsloc('val', '')
     res = d.roidb
