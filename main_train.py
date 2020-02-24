@@ -54,7 +54,7 @@ if __name__ == '__main__':
     # Create roidb
     image_sets = [iset for iset in config.dataset.image_set.split('+')]
     roidbs = [load_proposal_roidb(config.dataset.dataset, image_set, config.dataset.root_path,
-        config.dataset.dataset_path,
+        config.dataset.dataset_path, config.dataset.train_val_test,
         proposal=config.dataset.proposal, only_gt=True, append_gt=True, flip=True,
         result_path=config.output_path,
         proposal_path=config.proposal_path, load_mask=config.TRAIN.WITH_MASK)

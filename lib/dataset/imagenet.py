@@ -221,16 +221,27 @@ class imagenet(IMDB):
         # Load object bounding boxes into a data frame.
         ids = []
         for ix in range(num_objs):
-            x1 = float(data[1])
-            y1 = float(data[2])
-            x2 = float(data[3])
-            y2 = float(data[4])
+            x1 = float(data[1])*width
+            y1 = float(data[2])*height
+            x2 = float(data[3])*width
+            y2 = float(data[4])*height
             
             # ignore invalid boxes
             if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
                 continue
             if x2 > width or y2 > height:
                 continue
+
+            if x2 <= x1:
+                temp = x1
+                x1 = x2
+                x2 = temp
+
+            if y2 <= y1:
+                temp = y1
+                y1 = y2
+                y2 = temp
+
             if y2 <= y1 or x2 <= x1:
                 continue
 
