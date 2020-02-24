@@ -37,12 +37,13 @@ network:
   - 24
   NUM_ANCHORS: 12
 dataset:
-  NUM_CLASSES: 37
+  NUM_CLASSES: 4
   dataset: imagenet
-  dataset_path: "./data/oxford"
-  image_set: breeds
+  dataset_path: "./data/data_20200122_4class/"
+  image_set: "aug_img"
   root_path: "./data"
-  test_image_set: breeds
+  test_image_set: "20200122"
+  train_val_test: "train4000_test1000" 
   proposal: rpn
 TRAIN:
   # Whether to use C++ or python code for chip generation
@@ -72,7 +73,7 @@ TRAIN:
   visualization_freq: 100
   
 
-  lr: 0.015 #0.002 #0.0005
+  lr: 0.002 #0.0005
   lr_step: '5.33'
   warmup: true
   fp16: true
@@ -85,7 +86,7 @@ TRAIN:
   model_prefix: 'rcnn'
 
   # whether flip image
-  FLIP: true
+  FLIP: false
   # whether shuffle image
   SHUFFLE: true
   # whether use OHEM
