@@ -238,16 +238,6 @@ class imagenet(IMDB):
 
                     break
 
-        # filename = os.path.join(self._data_path, self._image_set, name_class, index[1] + '.txt')
-
-        # with open(filename, 'r') as f:
-        #     data = f.readline().split()
-
-
-        
-        # width = 1920
-        # height = 1080
-
         num_objs = 1
         ix = 0
 
@@ -256,59 +246,13 @@ class imagenet(IMDB):
         gt_subclasses = np.zeros((num_objs), dtype=np.int32)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
 
-        # Load object bounding boxes into a data frame.
-        # ids = []
-        # for ix in range(num_objs):
-        #     x1 = float(data[1])*width
-        #     y1 = float(data[2])*height
-        #     x2 = float(data[3])*width
-        #     y2 = float(data[4])*height
-                        
-        # ignore invalid boxes
-        # if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
-        #     continue
-        # if x2 > width or y2 > height:
-        #     continue
-
-            # if x2 <= x1:
-            #     temp = x1
-            #     x1 = x2
-            #     x2 = temp
-
-            # if y2 <= y1:
-            #     temp = y1
-            #     y1 = y2
-            #     y2 = temp
-
-        # if y2 <= y1 or x2 <= x1:
-        #     continue
-
-        # cls_tag = str(get_data_from_tag(obj, "name")).lower().strip()
-        # cls_tag = self._sons[int(data[0]) - 1]
-
-        # discard images which includes unregistered object categories
-        # if not (cls_tag in self._wnid_to_ind_image):
-        #     continue
-
-            # # correct class format is "nxxxxxxxx"; discard if not correct
-            # if cls_tag[0] != 'n' or (not cls_tag[1:].isdigit()):
-            #     self.cls_tag_is_noun += 1
-            #     continue
-
         cls_id = int(self._cluster_match[cls_tag]) + 1
         subcls_id = int(self._wnid_to_ind_image[cls_tag])
 
         boxes[ix, :] = [x1, y1, x2, y2]
         gt_classes[ix] = cls_id
         gt_subclasses[ix] = subcls_id
-
         overlaps[ix, cls_id] = 1.0
-            # ids.append(ix)
-
-        # boxes = boxes[ids,:]
-        # gt_classes = gt_classes[ids]
-        # gt_subclasses = gt_subclasses[ids]
-        # overlaps = overlaps[ids, :]
 
         roi_rec = dict()
         roi_rec['image'] = self.image_path_from_index(index)
