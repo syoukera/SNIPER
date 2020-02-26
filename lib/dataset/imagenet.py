@@ -204,6 +204,18 @@ class imagenet(IMDB):
         """
         name_class = self._sons[index[0] + 1]
 
+
+
+        filename = 'data/data_20200122_4class/aug_result.csv'
+        data = []
+        with open(filename) as f:
+            reader = csv.reader(f)
+            for i, row in enumerate(reader):
+                if i == 0:
+                    header = row
+                else:
+                    data.append(row)
+                    
         i_cls_name = 1
         i_image = 2
         i_x_min = 4
@@ -213,30 +225,27 @@ class imagenet(IMDB):
         i_width = 8
         i_height = 9
 
-        filename = 'data/data_20200122_4class/aug_result.csv'
-        with open(filename) as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if index[1] in row[i_image]:
-                    cls_tag = row[i_cls_name]
-                    x1 = row[i_x_min]
-                    x2 = row[i_x_max]
-                    y1 = row[i_y_min]
-                    y2 = row[i_y_max]
-                    width = row[i_width]
-                    height = row[i_height]
+        for d in data:
+            if index[1] in d[i_image]:
+                cls_tag = d[i_cls_name]
+                x1 = d[i_x_min]
+                x2 = d[i_x_max]
+                y1 = d[i_y_min]
+                y2 = d[i_y_max]
+                width = d[i_width]
+                height = d[i_height]
 
-                    # ignore invalid boxes
-                    if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
-                        continue
-                    if x2 > width or y2 > height:
-                        continue
-                    if y2 <= y1 or x2 <= x1:
-                        continue
-                    if not (cls_tag in self._wnid_to_ind_image):
-                        continue
+                # ignore invalid boxes
+                if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
+                    continue
+                if x2 > width or y2 > height:
+                    continue
+                if y2 <= y1 or x2 <= x1:
+                    continue
+                if not (cls_tag in self._wnid_to_ind_image):
+                    continue
 
-                    break
+                break
 
         num_objs = 1
         ix = 0
