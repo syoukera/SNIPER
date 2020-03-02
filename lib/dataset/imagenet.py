@@ -29,7 +29,7 @@ class imagenet(IMDB):
         self._devkit_path = "./data/imagenet/ILSVRC2014_devkit"
         self._result_path = "./output/imagenet"
         self.num_classes = 1 + 1
-        self.num_sub_classes = 4 + 1
+        self.num_sub_classes = 10 + 1
 
         self._classes_image = ()
         self._wnid_image = ()
@@ -208,8 +208,8 @@ class imagenet(IMDB):
         with open(filename, 'r') as f:
             data = f.readline().split()
         
-        width = 1920
-        height = 1080
+        width = 1088
+        height = 1088
 
         num_objs = 1
 
@@ -221,11 +221,16 @@ class imagenet(IMDB):
         # Load object bounding boxes into a data frame.
         ids = []
         for ix in range(num_objs):
-            x1 = float(data[1])*width
-            y1 = float(data[2])*height
-            x2 = float(data[3])*width
-            y2 = float(data[4])*height
+            a1 = float(data[1])
+            a2 = float(data[2])
+            a3 = float(data[3])
+            a4 = float(data[4])
             
+            x1 = 544*(2*a1 - a3)/2
+            x2 = 544*(2*a1 + a3)/2
+            y1 = 544*(2*a2 - a4)/2
+            y2 = 544*(2*a2 + a4)/2
+
             # ignore invalid boxes
             if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
                 continue
