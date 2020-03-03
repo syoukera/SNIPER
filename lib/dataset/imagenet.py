@@ -111,8 +111,12 @@ class imagenet(IMDB):
         """
         Construct an image path from the image's "index" identifier.
         """
-        name_class = self._sons[index[0] + 1]
-        image_path = os.path.join(self._data_path, self._image_set, name_class, index[1] + '.jpg')
+        if self.annotation_type == 'kccs_aug':
+            image_path = os.path.join(self._data_path, self._image_set, 'JPEGImages', index + '.jpg')
+        else:
+            name_class = self._sons[index[0] + 1]
+            image_path = os.path.join(self._data_path, self._image_set, name_class, index[1] + '.jpg')
+
         assert os.path.exists(image_path), 'path does not exist: {}'.format(image_path)
         return image_path
 
@@ -313,16 +317,20 @@ class imagenet(IMDB):
         """
         Load image and bounding boxes info from txt files of imagenet.
         """
-        name_class = self._sons[index[0] + 1]
+        filename = os.path.join(self._data_path, self._image_set, 'Annotations', index + '.xml')
 
-        with open(filename, 'r') as f:
-            data = f.readline().split()
-        
-        width = 1088
-        height = 1088
+        def get_data_from_tag(node, tag):
+            return node.getElementsByTagName(tag)[0].childNodes[0].data
 
-        num_objs = 1
-        ix = 0
+        with open(filename) as f:
+            data = minidom.parseString(f.read())
+
+        objs = data.getElementsByTagName('object')
+        imsize = data.getElementsByTagName('size')
+        width = float(get_data_from_tag(imsize[0], 'width'))
+        height = float(get_data_from_tag(imsize[0], 'height'))
+
+        num_objs = len(objs)
 
         boxes = np.zeros((num_objs, 4), dtype=np.int32)
         gt_classes = np.zeros((num_objs), dtype=np.int32)
@@ -331,38 +339,24 @@ class imagenet(IMDB):
 
         # Load object bounding boxes into a data frame.
         ids = []
-        for ix in range(num_objs):
-            a1 = float(data[1])
-            a2 = float(data[2])
-            a3 = float(data[3])
-            a4 = float(data[4])
-            
-            x1 = 544*(2*a1 - a3)/2
-            x2 = 544*(2*a1 + a3)/2
-            y1 = 544*(2*a2 - a4)/2
-            y2 = 544*(2*a2 + a4)/2
 
+        for ix, obj in enumerate(objs):
+            x1 = int(get_data_from_tag(obj, 'xmin'))
+            y1 = int(get_data_from_tag(obj, 'ymin'))
+            x2 = int(get_data_from_tag(obj, 'xmax'))
+            y2 = int(get_data_from_tag(obj, 'ymax'))
+
+            
             # ignore invalid boxes
             if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
                 continue
             if x2 > width or y2 > height:
                 continue
-
-            if x2 <= x1:
-                temp = x1
-                x1 = x2
-                x2 = temp
-
-            if y2 <= y1:
-                temp = y1
-                y1 = y2
-                y2 = temp
-
             if y2 <= y1 or x2 <= x1:
                 continue
 
             # cls_tag = str(get_data_from_tag(obj, "name")).lower().strip()
-            cls_tag = self._sons[int(data[0]) - 1]
+            cls_tag = str(get_data_from_tag(obj, 'name'))
 
             # discard images which includes unregistered object categories
             if not (cls_tag in self._wnid_to_ind_image):
@@ -383,10 +377,10 @@ class imagenet(IMDB):
             overlaps[ix, cls_id] = 1.0
             ids.append(ix)
 
-        boxes[ix, :] = [x1, y1, x2, y2]
-        gt_classes[ix] = cls_id
-        gt_subclasses[ix] = subcls_id
-        overlaps[ix, cls_id] = 1.0
+        boxes = boxes[ids,:]
+        gt_classes = gt_classes[ids]
+        gt_subclasses = gt_subclasses[ids]
+        overlaps = overlaps[ids, :]
 
         roi_rec = dict()
         roi_rec['image'] = self.image_path_from_index(index)
