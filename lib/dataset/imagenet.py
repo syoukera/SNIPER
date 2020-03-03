@@ -8,7 +8,7 @@ import xml.dom.minidom as minidom
 import numpy as np
 import cPickle
 import pickle
-import json
+import csv
 from collections import defaultdict
 import subprocess
 from imdb import IMDB
@@ -203,21 +203,67 @@ class imagenet(IMDB):
         Load image and bounding boxes info from txt files of imagenet.
         """
         name_class = self._sons[index[0] + 1]
-        filename = os.path.join(self._data_path, self._image_set, name_class, index[1] + '.txt')
 
+<<<<<<< HEAD
         with open(filename, 'r') as f:
             data = f.readline().split()
         
         width = 1088
         height = 1088
+=======
+
+
+        filename = 'data/data_20200122_4class/aug_result.csv'
+        data = []
+        with open(filename) as f:
+            reader = csv.reader(f)
+            for i, row in enumerate(reader):
+                if i == 0:
+                    header = row
+                else:
+                    data.append(row)
+                    
+        i_cls_name = 1
+        i_image = 2
+        i_x_min = 4
+        i_x_max = 6
+        i_y_min = 5
+        i_y_max = 7
+        i_width = 8
+        i_height = 9
+
+        for d in data:
+            if index[1] in d[i_image]:
+                cls_tag = d[i_cls_name]
+                x1 = d[i_x_min]
+                x2 = d[i_x_max]
+                y1 = d[i_y_min]
+                y2 = d[i_y_max]
+                width = d[i_width]
+                height = d[i_height]
+
+                # ignore invalid boxes
+                if x1 > 4000 or y1 > 4000 or x2 > 4000 or y2 > 4000 :
+                    continue
+                if x2 > width or y2 > height:
+                    continue
+                if y2 <= y1 or x2 <= x1:
+                    continue
+                if not (cls_tag in self._wnid_to_ind_image):
+                    continue
+
+                break
+>>>>>>> b7cc609d0031d4fd6a027825c2df1bab5986a7a9
 
         num_objs = 1
+        ix = 0
 
         boxes = np.zeros((num_objs, 4), dtype=np.int32)
         gt_classes = np.zeros((num_objs), dtype=np.int32)
         gt_subclasses = np.zeros((num_objs), dtype=np.int32)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
 
+<<<<<<< HEAD
         # Load object bounding boxes into a data frame.
         ids = []
         for ix in range(num_objs):
@@ -271,11 +317,15 @@ class imagenet(IMDB):
 
             overlaps[ix, cls_id] = 1.0
             ids.append(ix)
+=======
+        cls_id = int(self._cluster_match[cls_tag]) + 1
+        subcls_id = int(self._wnid_to_ind_image[cls_tag])
+>>>>>>> b7cc609d0031d4fd6a027825c2df1bab5986a7a9
 
-        boxes = boxes[ids,:]
-        gt_classes = gt_classes[ids]
-        gt_subclasses = gt_subclasses[ids]
-        overlaps = overlaps[ids, :]
+        boxes[ix, :] = [x1, y1, x2, y2]
+        gt_classes[ix] = cls_id
+        gt_subclasses[ix] = subcls_id
+        overlaps[ix, cls_id] = 1.0
 
         roi_rec = dict()
         roi_rec['image'] = self.image_path_from_index(index)
