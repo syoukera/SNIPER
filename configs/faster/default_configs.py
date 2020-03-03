@@ -37,6 +37,7 @@ config.dataset.dataset = 'PascalVOC'
 config.dataset.image_set = '2007_trainval'
 config.dataset.test_image_set = '2007_test'
 config.dataset.root_path = './data'
+config.dataset.annotation_type = 'kccs_raw'
 config.dataset.dataset_path = './data/VOCdevkit'
 config.dataset.NUM_CLASSES = 21
 
