@@ -37,15 +37,15 @@ network:
   - 24
   NUM_ANCHORS: 12
 dataset:
-  NUM_CLASSES: 4
+  NUM_CLASSES: 10
   dataset: imagenet
-  dataset_path: "./data/data_20200122_4class/"
+  dataset_path: "./data/aug_20200216_10classes_few/"
   image_set: "aug_img"
   root_path: "./data"
   # Choose [kccs_raw, kccs_aug, sakamoto_aug] 
-  annotation_type: "sakamoto_aug"
+  annotation_type: "kccs_aug"
   test_image_set: "20200122"
-  train_val_test: "train4000_test1000" 
+  train_val_test: "train5000_test1000" 
   proposal: rpn
 TRAIN:
   # Whether to use C++ or python code for chip generation
