@@ -22,9 +22,9 @@ def load_gt_roidb(dataset_name, image_set_name, root_path, dataset_path, result_
 
 def load_proposal_roidb(dataset_name, image_set_name, root_path, dataset_path, train_val_test_path, annotaion_type, 
                         result_path=None, proposal='rpn', append_gt=True, flip=False,proposal_path='proposals', 
-                        only_gt=False, get_imdb=False, load_mask=False):
+                        only_gt=False, get_imdb=False, load_mask=False, is_train=True):
     """ load proposal roidb (append_gt when training) """
-    imdb = eval(dataset_name)(image_set_name, root_path, dataset_path, train_val_test_path, annotaion_type, result_path,load_mask=load_mask)
+    imdb = eval(dataset_name)(image_set_name, root_path, dataset_path, train_val_test_path, annotaion_type, result_path,load_mask=load_mask, is_train=is_train)
 
     roidb = imdb.gt_roidb()
 

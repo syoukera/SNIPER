@@ -51,11 +51,11 @@ if __name__ == '__main__':
     if not os.path.isdir(config.output_path):
         os.mkdir(config.output_path)
 
-    # Create roidb
+    # Create train roidb
     image_sets = [iset for iset in config.dataset.image_set.split('+')]
     roidbs = [load_proposal_roidb(config.dataset.dataset, image_set, config.dataset.root_path,
         config.dataset.dataset_path, config.dataset.train_val_test, config.dataset.annotation_type,
-        proposal=config.dataset.proposal, only_gt=True, append_gt=True, flip=True,
+        proposal=config.dataset.proposal, only_gt=True, append_gt=True, flip=True, is_train=True,
         result_path=config.output_path,
         proposal_path=config.proposal_path, load_mask=config.TRAIN.WITH_MASK)
         for image_set in image_sets]
@@ -64,12 +64,26 @@ if __name__ == '__main__':
     roidb = filter_roidb(roidb, config)
     bbox_means, bbox_stds = add_bbox_regression_targets(roidb, config)
 
-
-
-    print('Creating Iterator with {} Images'.format(len(roidb)))
+    print('Creating train Iterator with {} Images'.format(len(roidb)))
     train_iter = MNIteratorE2E(roidb=roidb, config=config, batch_size=batch_size, nGPUs=nGPUs, threads=32,
                                  pad_rois_to=400)
-    print('The Iterator has {} samples!'.format(len(train_iter)))
+    print('The train Iterator has {} samples!'.format(len(train_iter)))
+    
+    # Create validation roidb
+    roidbs_val = [load_proposal_roidb(config.dataset.dataset, image_set, config.dataset.root_path,
+        config.dataset.dataset_path, config.dataset.train_val_test, config.dataset.annotation_type,
+        proposal=config.dataset.proposal, only_gt=True, append_gt=True, flip=True, is_train=False,
+        result_path=config.output_path,
+        proposal_path=config.proposal_path, load_mask=config.TRAIN.WITH_MASK)
+        for image_set in image_sets]
+
+    roidb_val = merge_roidb(roidbs_val)
+    roidb_val = filter_roidb(roidb_val, config)
+
+    print('Creating validation Iterator with {} Images'.format(len(roidb)))
+    eval_iter = MNIteratorE2E(roidb=roidb, config=config, batch_size=batch_size, nGPUs=nGPUs, threads=32,
+                                 pad_rois_to=400)
+    print('The validation Iterator has {} samples!'.format(len(train_iter)))
 
     # Creating the Logger
     logger, output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
@@ -123,7 +137,8 @@ if __name__ == '__main__':
                           eval('{}.checkpoint_callback'.format(config.symbol))(sym_inst.get_bbox_param_names(), prefix, bbox_means, bbox_stds)]
 
     train_iter = PrefetchingIter(train_iter)
-    mod.fit(train_iter, optimizer='sgd', optimizer_params=optimizer_params,
+    eval_iter = PrefetchingIter(eval_iter)
+    mod.fit(train_iter, eval_data=eval_iter, optimizer='sgd', optimizer_params=optimizer_params,
             eval_metric=eval_metrics, num_epoch=config.TRAIN.end_epoch, kvstore=config.default.kvstore,
             batch_end_callback=batch_end_callback,
             epoch_end_callback=epoch_end_callback, arg_params=arg_params, aux_params=aux_params)

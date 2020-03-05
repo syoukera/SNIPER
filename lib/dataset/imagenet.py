@@ -18,7 +18,8 @@ import time
 DEBUG = False
 
 class imagenet(IMDB):
-    def __init__(self, image_set, root_path='./', data_path='data/imagenet/', train_val_test_path='train60_val20', annotation_type='kccs_raw', result_path=None, load_mask=False):
+    def __init__(self, image_set, root_path='./', data_path='data/imagenet/', train_val_test_path='train60_val20', 
+                 annotation_type='kccs_raw', result_path=None, load_mask=False, is_train=True):
 
         self.name = 'imagenet'
         self._image_set = image_set
@@ -29,6 +30,7 @@ class imagenet(IMDB):
         self.annotation_type = annotation_type
         self._devkit_path = "./data/imagenet/ILSVRC2014_devkit"
         self._result_path = "./output/imagenet"
+        self.is_train = is_train
         self.num_classes = 1 + 1
         self.num_sub_classes = 10 + 1
 
@@ -145,7 +147,10 @@ class imagenet(IMDB):
                 return image_index
 
         else:
-            image_set_file = os.path.join(self._data_path, self._train_val_test_path, "train.pkl")
+            if self.is_train:
+                image_set_file = os.path.join(self._data_path, self._train_val_test_path, "train.pkl")
+            else:
+                image_set_file = os.path.join(self._data_path, self._train_val_test_path, "val.pkl")
             with open(image_set_file, 'rb') as f:
                 image_index = pickle.load(f)
         return image_index
@@ -160,8 +165,12 @@ class imagenet(IMDB):
             cache_file = os.path.join(cache_path, self.name + '_3kcls_1C_loc_gt_roidb.pkl')
             index_file = os.path.join(cache_path, self.name + '_3kcls_1C_loc_index_roidb.pkl')
         else:
-            cache_file = os.path.join(cache_path, self.name + '_det_new_val_gt_roidb.pkl')
-            index_file = os.path.join(cache_path, self.name + '_det_new_val_index_roidb.pkl')
+            if self.is_train:
+                cache_file = os.path.join(cache_path, self.name + '_det_new_train_gt_roidb.pkl')
+                index_file = os.path.join(cache_path, self.name + '_det_new_train_index_roidb.pkl')
+            else:
+                cache_file = os.path.join(cache_path, self.name + '_det_new_val_gt_roidb.pkl')
+                index_file = os.path.join(cache_path, self.name + '_det_new_val_index_roidb.pkl')
 
         if os.path.exists(cache_file) and os.path.exists(index_file):
             print ("found cache")
