@@ -160,7 +160,7 @@ class imagenet(IMDB):
         Return the database of ground-truth regions of interest.
         This function loads/saves from/to a cache file to speed up future calls.
         """
-        cache_path = os.path.join(self._data_path, self._image_set, 'cache')
+        cache_path = os.path.join(self._data_path, 'cache', self._image_set)
         if self._image_set == 'fall11_whole':
             cache_file = os.path.join(cache_path, self.name + '_3kcls_1C_loc_gt_roidb.pkl')
             index_file = os.path.join(cache_path, self.name + '_3kcls_1C_loc_index_roidb.pkl')
