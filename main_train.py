@@ -80,10 +80,10 @@ if __name__ == '__main__':
     roidb_val = merge_roidb(roidbs_val)
     roidb_val = filter_roidb(roidb_val, config)
 
-    print('Creating validation Iterator with {} Images'.format(len(roidb)))
-    eval_iter = MNIteratorE2E(roidb=roidb, config=config, batch_size=batch_size, nGPUs=nGPUs, threads=32,
+    print('Creating validation Iterator with {} Images'.format(len(roidb_val)))
+    eval_iter = MNIteratorE2E(roidb=roidb_val, config=config, batch_size=batch_size, nGPUs=nGPUs, threads=32,
                                  pad_rois_to=400)
-    print('The validation Iterator has {} samples!'.format(len(train_iter)))
+    print('The validation Iterator has {} samples!'.format(len(eval_iter)))
 
     # Creating the Logger
     logger, output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
