@@ -149,7 +149,7 @@ for idx, im_name in enumerate(image_index):
         
     dets.append(dets_nms)
 
-    print 'processing {}/{} testing {}.jpg, time spent before post-processing: {:.4f}s'.format(idx+1, len(image_index), im_name, t)
+    print 'processing {}/{} testing {}.jpg, time spent: {:.4f}s'.format(idx+1, len(image_index), im_name, t)
 
 
 # # Make comfusion matrix
@@ -197,4 +197,4 @@ conf_path = os.path.join('./output/confusions', 'conf_' + config.dataset.image_s
                          + '_epoch' + str(config.TEST.TEST_EPOCH) + '.pkl')
 with open(conf_path, 'wb') as f:
     pickle.dump(conf, f)
-print('confusiotns exported to ', + conf_path)
+print('confusiotns exported to ' + conf_path)
